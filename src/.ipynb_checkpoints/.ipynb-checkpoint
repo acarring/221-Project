@@ -73,8 +73,7 @@
    "outputs": [],
    "source": [
     "#columns of the csv file\n",
-    "COLS = ['id', 'created_at', 'source', 'original_text','clean_text', 'sentiment','polarity',\n",
-    "        'subjectivity', 'original_author']"
+    "COLS = ['id', 'original_text','clean_text', 'sentiment','polarity', 'subjectivity']"
    ]
   },
   {
@@ -185,7 +184,29 @@
     "            status = status._json\n",
     "            \n",
     "            clean_text = p.clean(status['text'])\n",
-    "            "
+    "            filtered_tweet=clean_tweets(clean_text)\n",
+    "            \n",
+    "            blob = TextBlob(filtered_tweet)\n",
+    "            Sentiment = blob.sentiment     \n",
+    "            polarity = Sentiment.polarity\n",
+    "            subjectivity = Sentiment.subjectivity\n",
+    "            \n",
+    "            new_entry += [status['id'],status['text'], filtered_tweet, Sentiment,polarity,subjectivity]\n",
+    "\n",
+    "            \n",
+    "            single_tweet_df = pd.DataFrame([new_entry], columns=COLS)\n",
+    "            df_final = df.append(single_tweet_df, ignore_index=True)\n",
+    "        "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "csvFile = open(file, 'a' ,encoding='utf-8')\n",
+    "df.to_csv(csvFile, mode='a', columns=COLS, index=False, encoding=\"utf-8\")"
    ]
   }
  ],
