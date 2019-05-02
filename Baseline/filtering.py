@@ -66,7 +66,7 @@ def feature_extraction(preprocessed_text):
     unigrams_lists = []
     for msg in preprocessed_text:
         # adding end of and start of a message
-        msg = '<s> ' +msg +' </s>'
+        msg = '<s> ' + msg +' </s>'
         unigrams_lists.append(msg.split())
     unigrams = [uni_list for sub_list in unigrams_lists for uni_list in sub_list]
     bigrams.extend(nltk.bigrams(unigrams))
@@ -107,11 +107,12 @@ def bigram_probability(message):
     # bigrams for message
     bigrams_for_msg = list(nltk.bigrams(lemmatized_msg))
     # stop words removed unigrams for vocabulary
-    ham_unigrams = [word for word in feature_extraction(preprocessing_msgs(ham_text)) if word not in stopwords]
-    spam_unigrams = [word for word in feature_extraction(preprocessing_msgs(spam_text)) if word not in stopwords]
+    #ham_unigrams = [word for word in feature_extraction(preprocessing_msgs(ham_text)) if word not in stopwords]
+    #spam_unigrams = [word for word in feature_extraction(preprocessing_msgs(spam_text)) if word not in stopwords]
     # frequecies of bigrams extracted
-    ham_frequency = ham_bigram_feature_frequency()
-    spam_frequency  = spam_bigram_feature_frequency()
+    #ham_frequency = ham_bigram_feature_frequency()
+    #spam_frequency  = spam_bigram_feature_frequency()
+
     #print('========================== Calculating Probabilities ==========================')
     #print('----------- Ham Freuquencies ------------')
     for bigram in bigrams_for_msg:
@@ -120,13 +121,14 @@ def bigram_probability(message):
         # probability of bigram (smoothed)
         ham_probability_of_bigram = ham_frequency[bigram] + 1
         #print(bigram, ' occurs ', ham_probability_of_bigram)
-        for (first_unigram, second_unigram) in filter_stopwords_bigrams(ham_unigrams):
+        for (first_unigram, second_unigram) in filtered_ham:
             ham_probability_denominator += 1
             if(first_unigram == bigram[0]):
                 ham_probability_denominator += ham_frequency[first_unigram, second_unigram]
         probability = ham_probability_of_bigram / ham_probability_denominator
         probability_h *= probability
     #print('\n')
+
     #print('----------- Spam Freuquencies ------------')
     for bigram in bigrams_for_msg:
         # probability of first word in bigram
@@ -134,22 +136,29 @@ def bigram_probability(message):
         # probability of bigram (smoothed)
         spam_probability_of_bigram = spam_frequency[bigram] + 1
         #print(bigram, ' occurs ', spam_probability_of_bigram)
-        for (first_unigram, second_unigram) in filter_stopwords_bigrams(spam_unigrams):
+        for (first_unigram, second_unigram) in filtered_spam:
             spam_probability_denominator += 1
             if(first_unigram == bigram[0]):
                 spam_probability_denominator += spam_frequency[first_unigram, second_unigram]
         probability = spam_probability_of_bigram / spam_probability_denominator
         probability_s *= probability
-    #print('\n')
     #print('Ham Probability: ' +str(probability_h))
     #print('Spam Probability: ' +str(probability_s))
     print('\n')
-    if(probability_h >= probability_s): #ham is democrat
-        print('\"' +message +'\" is a Democratic message')
+    if probability_h >= probability_s: #ham is democrat
+        print('\"' + message + '\" is a Democratic message')
     else:
         print('\"' +message +'\" is a Republican message')
     print('\n')
 
+ham_unigrams = [word for word in feature_extraction(preprocessing_msgs(ham_text)) if word not in stopwords]
+spam_unigrams = [word for word in feature_extraction(preprocessing_msgs(spam_text)) if word not in stopwords]
+ham_frequency = ham_bigram_feature_frequency()
+spam_frequency  = spam_bigram_feature_frequency()
+filtered_ham = filter_stopwords_bigrams(ham_unigrams)
+filtered_spam = filter_stopwords_bigrams(spam_unigrams)
+
+bigram_probability("women have the right to abortion")
 bigram_probability("betsy de vos proposed title ix rules would force schools to ignore sexual harassment and assault that takes place anywhere off-campus so what happens when you study abroad in siberia")
 
 
